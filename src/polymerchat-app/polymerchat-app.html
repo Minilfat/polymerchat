@@ -1,0 +1,231 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
+<link rel="import" href="../../bower_components/app-layout/app-layout.html">
+
+
+<link rel="import" href="./user-profile-ava.html">
+<link rel="import" href="./message-box-single.html">
+<link rel="import" href="./login-register.html">
+
+
+
+
+<dom-module id="polymerchat-app">
+
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      .content-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      .header {
+        background: #4184F4;
+        color: white;
+      }
+      .messages-box {
+        padding: 5px;
+        flex: 1; 
+        overflow: auto;
+      }
+
+      .footer {
+        padding: 0 5px 5px 5px;
+      }
+
+      .card-flex-box {
+        display: flex;
+        align-items: center;
+      }
+
+       .card-flex-box paper-input {
+        flex-grow: 2;
+      }
+
+      .submit-message-btn {
+        width: 80px;
+        height: 45px;
+        margin: auto 10px;
+      }
+
+      .message-text-input {
+        margin: 5px 5px 5px 10px;
+      }
+
+      .user-info {
+        margin: auto;
+      }
+
+      .message-ava {
+        margin: 5px;
+      }
+
+      paper-button {
+        background: #709775;
+        color: white;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        font-weight: 900
+      }
+
+    </style>
+    
+   
+    <div class="content-container">
+
+      <div class="header">
+        <app-header reveals>
+            <app-toolbar>
+              <paper-icon-button icon="menu" onclick="drawer.toggle()"></paper-icon-button>
+              <div main-title>RosssaChat</div>
+              <paper-icon-button icon="exit-to-app" on-tap="logOut"></paper-icon-button>
+            </app-toolbar>
+          </app-header>
+          <app-drawer id="drawer" swipe-open></app-drawer>
+      </div>
+
+      
+  
+      <div class="messages-box" id="scrollableDiv">
+        <template is="dom-repeat" items="{{messagesHistory}}">
+          <message-box-single is-mine="{{item.isMine}}" text-data="{{item.text}}" message-time="{{item.time}}" sender-name="{{item.author}}"></message-box-single>
+        </template>
+      </div>
+  
+
+      <div class="footer">
+        <paper-card class="card-flex-box">
+          <user-profile-ava class="message-ava" name="{{storedUser.name}}" ></user-profile-ava>
+          <paper-input label="Type message" no-label-float class="message-text-input" type="text" value="{{textMessage}}" on-tap="sendMessage" on-keypress="_keyPressed"></paper-input>
+          <paper-button class="submit-message-btn" raised on-tap="sendMessage">Send</paper-button>
+        </paper-card> 
+      </div>
+     
+    </div>
+
+  </template>
+
+
+  <script>
+   
+    class PolymerchatApp extends Polymer.Element {
+      static get is() { return 'polymerchat-app'; }
+      static get properties() {
+        return {
+          textMessage: {
+            type: String,
+            value: ""
+          },
+
+          _connection: {
+            type: Object,
+            value: {}
+          },
+
+          storedUser: {
+            type: Object,
+            value: {}
+          },
+
+          messagesHistory: {
+            type: Array,
+            value: []
+          }
+        };
+      }
+
+     
+      _onOpen() {
+        console.log("Connection with socket server was established");
+        console.log("Sending username: ", this.storedUser.name);
+        this._connection.send(this.storedUser.name);
+      }
+
+      _onMessage(event) {
+        console.log('this comes here');
+        this._showMessage(event.data);
+      };
+
+      _onClose() {
+        console.log("Connection with socket server was closed");
+      };
+
+      _onError(event) {
+        console.log("Error happened", event);
+      }
+
+      _keyPressed(e) {
+        if (13 === e.charCode) {
+          this.sendMessage();
+        }
+      }
+
+      sendMessage() {
+        if (this.textMessage !== "") {
+          this._connection.send(this.textMessage);
+          this.textMessage = "";
+        }
+      }
+
+      _showMessage(messageObject) {
+        let mes = JSON.parse(messageObject)
+        if (mes.type === 'history') {
+          console.log(mes.data);
+          mes.data.forEach(item => {
+            if (item.author === this.storedUser.name) {
+              item.isMine = true;
+            } else {
+              item.isMine = false;
+            }
+          });
+          this.set('messagesHistory', mes.data);
+        } else {
+          console.log(mes.data)
+          console.log(this.storedUser.name)
+          mes.data.isMine = this.storedUser.name === mes.data.author ? true : false;
+          this.push('messagesHistory', mes.data)
+        }
+
+        this._scrollDown();
+      }
+
+      _scrollDown() {
+        Polymer.RenderStatus.afterNextRender(this, () => {
+          this.$.scrollableDiv.scrollTop = this.$.scrollableDiv.scrollHeight;
+        });
+      }
+
+      logOut() {
+        this.storedUser = {}
+        this._connection.close();
+        this.dispatchEvent(new CustomEvent("user-is-logged-out", {
+            detail: {
+              loggedOut: false
+            }
+          }));
+      }
+
+      establishConnection() {
+        this._connection = new WebSocket("ws://10.211.40.5:1337");
+        this._connection.onopen = this._onOpen.bind(this);
+        this._connection.onmessage = this._onMessage.bind(this);
+        this._connection.onerror = this._onError.bind(this);
+        this._connection.onclose = this._onClose.bind(this);
+        this.set('messagesHistory', []);
+      }
+
+    }
+
+    window.customElements.define(PolymerchatApp.is, PolymerchatApp);
+  </script>
+</dom-module>

@@ -1,0 +1,51 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+
+<link rel="import" href="./polymerchat-app.html">
+<link rel="import" href="./login-register.html">
+
+<dom-module id="main-app">
+    <template>
+        <template is="dom-if" if="[[!isLoggedIn]]">
+            <login-register on-user-is-logged-in="_handleUserIsLoggedIn"></login-register>
+        </template>
+
+        <template is="dom-if" if="[[isLoggedIn]]">
+            <polymerchat-app on-user-is-logged-out="_handleUserIsLoggedOut" 
+                             stored-user="[[user]]"></polymerchat-app>
+        </template>
+    </template>
+    <script>
+        class MainApp extends Polymer.Element {
+            static get is() { return 'main-app'; }
+            static get properties() {
+                return {
+                    user: {
+                        type: Object,
+                        value: {}
+                    },
+                    isLoggedIn: {
+                        type: Boolean,
+                        value: false
+                    }        
+                }
+            }
+
+            _handleUserIsLoggedIn(event) {
+                this.set("isLoggedIn", true);
+                this.set("user", event.detail.user);
+                setTimeout(() => {
+                    let polymerChatAppElement = this.shadowRoot.querySelector("polymerchat-app");
+                    polymerChatAppElement.establishConnection();
+                }, 200);
+                
+            }
+
+            _handleUserIsLoggedOut() {
+                this.set("isLoggedIn", false);
+            }
+        }
+
+        window.customElements.define(MainApp.is, MainApp);
+    </script>
+</dom-module>

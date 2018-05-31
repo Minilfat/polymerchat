@@ -1,0 +1,6 @@
+{
+  "name": "polymerchat",
+  "short_name": "polymerchat",
+  "start_url": "/",
+  "display": "standalone"
+}
