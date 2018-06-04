@@ -4,31 +4,39 @@
 <dom-module id="user-profile-ava">
   <template>
     <style>
-        .wrapper {
-            width: 45px;
-            height: 45px;
-            display:inline-block;
-            font-size:1em;
-            line-height: 45px;
-            text-align:center;
-            border-radius:50%;
-            background: #8FB996;
-            color:white;
-            font-weight: 700;
-            margin-left: 3px;
-        }
+      .wrapper {
+        width: 45px;
+        height: 45px;
+        display: flex;
 
+        justify-content: center;
+        align-items: center;
+
+        border-radius: 50%;
+        background: #8FB996;
+      }
+
+      .item {
+        font-size: 1.3em;
+        color: white;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
     </style>
-    
+
     <div class="wrapper">
+      <div class="item">
         [[_firstLetter]]
+      </div>
     </div>
-    
+
   </template>
 
   <script>
     class UserProfileAva extends Polymer.Element {
-      static get is() { return 'user-profile-ava'; }
+      static get is() {
+        return 'user-profile-ava';
+      }
       static get properties() {
         return {
           name: {

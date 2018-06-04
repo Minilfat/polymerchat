@@ -4,23 +4,22 @@
 
 
 <dom-module id="message-box-single">
-    
+
     <template>
         <style>
             .wrapper-box {
                 display: flex;
                 width: 40%;
-                min-width: 350px;
-                justify-content: space-between; 
+                min-width: 280px;
+                justify-content: space-between;
                 flex-wrap: wrap;
 
                 border-radius: 4px;
                 background: #EFF6EE;
 
-                margin:1px 5px 5px 4px;
+                margin: 1px 5px 5px 4px;
                 /* margin-left: 5px; */
                 /* margin-right: 5px; */
-                               
             }
 
             .sender,
@@ -42,7 +41,7 @@
 
                 font-size: 16px;
                 color: #273043;
-                
+
                 -ms-word-break: break-all;
                 word-break: break-all;
                 word-break: break-word;
@@ -57,19 +56,20 @@
                 background: #8FB996;
                 color: white;
             }
-
         </style>
         <div id="tratra" class="wrapper-box">
             <div class="sender">[[senderName]]</div>
             <div class="time">[[parseData()]]</div>
             <div class="text">[[textData]]</div>
-            
+
         </div>
     </template>
 
     <script>
         class MessageBoxSingle extends Polymer.Element {
-            static get is() { return 'message-box-single'; }
+            static get is() {
+                return 'message-box-single';
+            }
             static get properties() {
                 return {
                     isMine: {
@@ -100,10 +100,10 @@
                 let minutes = this._addLeadingZero(date.getMinutes());
                 let seconds = this._addLeadingZero(date.getSeconds());
                 let day = this._addLeadingZero(date.getDate());
-                let month = this._addLeadingZero(date.getMonth()+1);
+                let month = this._addLeadingZero(date.getMonth() + 1);
                 let year = date.getFullYear();
 
-                
+
 
                 return day + "." + month + "." + year + " " + hours + ":" + minutes + ":" + seconds;
             }
@@ -118,7 +118,7 @@
             _addLeadingZero(str) {
                 str = str.toString();
                 if (str.length === 1) {
-                    return '0'+str;
+                    return '0' + str;
                 }
                 return str;
             }

@@ -12,6 +12,8 @@
 <link rel="import" href="./user-profile-ava.html">
 <link rel="import" href="./message-box-single.html">
 <link rel="import" href="./login-register.html">
+<link rel="import" href="./chat-floating-menu.html">
+
 
 
 
@@ -24,6 +26,10 @@
         display: block;
       }
 
+      :host([is-left-menu-opened]) #footerId {
+        display: none;
+      }
+
       .content-container {
         display: flex;
         flex-direction: column;
@@ -34,9 +40,10 @@
         background: #4184F4;
         color: white;
       }
+
       .messages-box {
         padding: 5px;
-        flex: 1; 
+        flex: 1;
         overflow: auto;
       }
 
@@ -49,13 +56,13 @@
         align-items: center;
       }
 
-       .card-flex-box paper-input {
+      .card-flex-box paper-input {
         flex-grow: 2;
       }
 
       .submit-message-btn {
-        width: 80px;
-        height: 45px;
+        width: 60px;
+        height: 35px;
         margin: auto 10px;
       }
 
@@ -75,51 +82,54 @@
         background: #709775;
         color: white;
         font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-        font-weight: 900
+        font-weight: 600
       }
-
     </style>
-    
-   
+
+
     <div class="content-container">
 
       <div class="header">
         <app-header reveals>
-            <app-toolbar>
-              <paper-icon-button icon="menu" onclick="drawer.toggle()"></paper-icon-button>
-              <div main-title>RosssaChat</div>
-              <paper-icon-button icon="exit-to-app" on-tap="logOut"></paper-icon-button>
-            </app-toolbar>
-          </app-header>
-          <app-drawer id="drawer" swipe-open></app-drawer>
+          <app-toolbar>
+            <paper-icon-button icon="menu" on-tap="toggleLefttMenu"></paper-icon-button>
+            <div main-title>RosssaChat</div>
+            <paper-icon-button icon="exit-to-app" on-tap="logOut"></paper-icon-button>
+          </app-toolbar>
+        </app-header>
+        <app-drawer id="drawer" opened="{{isLeftMenuOpened}}">
+          <chat-floating-menu name="{{storedUser.name}}"></chat-floating-menu>
+        </app-drawer>
       </div>
 
-      
-  
+
+
       <div class="messages-box" id="scrollableDiv">
         <template is="dom-repeat" items="{{messagesHistory}}">
           <message-box-single is-mine="{{item.isMine}}" text-data="{{item.text}}" message-time="{{item.time}}" sender-name="{{item.author}}"></message-box-single>
         </template>
       </div>
-  
 
-      <div class="footer">
+
+      <div class="footer" id="footerId">
         <paper-card class="card-flex-box">
-          <user-profile-ava class="message-ava" name="{{storedUser.name}}" ></user-profile-ava>
-          <paper-input label="Type message" no-label-float class="message-text-input" type="text" value="{{textMessage}}" on-tap="sendMessage" on-keypress="_keyPressed"></paper-input>
+          <user-profile-ava class="message-ava" name="{{storedUser.name}}"></user-profile-ava>
+          <paper-input label="Type message" no-label-float class="message-text-input" type="text" value="{{textMessage}}" on-tap="sendMessage"
+            on-keypress="_keyPressed"></paper-input>
           <paper-button class="submit-message-btn" raised on-tap="sendMessage">Send</paper-button>
-        </paper-card> 
+        </paper-card>
       </div>
-     
+
     </div>
 
   </template>
 
 
   <script>
-   
     class PolymerchatApp extends Polymer.Element {
-      static get is() { return 'polymerchat-app'; }
+      static get is() {
+        return 'polymerchat-app';
+      }
       static get properties() {
         return {
           textMessage: {
@@ -140,11 +150,17 @@
           messagesHistory: {
             type: Array,
             value: []
+          },
+
+          isLeftMenuOpened: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
           }
         };
       }
 
-     
+
       _onOpen() {
         console.log("Connection with socket server was established");
         console.log("Sending username: ", this.storedUser.name);
@@ -209,19 +225,32 @@
         this.storedUser = {}
         this._connection.close();
         this.dispatchEvent(new CustomEvent("user-is-logged-out", {
-            detail: {
-              loggedOut: false
-            }
-          }));
+          detail: {
+            loggedOut: false
+          }
+        }));
       }
 
       establishConnection() {
-        this._connection = new WebSocket("ws://10.211.40.5:1337");
+        this._connection = new WebSocket("ws://127.0.0.1:1337");
         this._connection.onopen = this._onOpen.bind(this);
         this._connection.onmessage = this._onMessage.bind(this);
         this._connection.onerror = this._onError.bind(this);
         this._connection.onclose = this._onClose.bind(this);
         this.set('messagesHistory', []);
+      }
+
+      toggleLefttMenu() {
+
+        this.$.drawer.toggle();
+        // if (this.isLeftMenuOpened) {
+        // this.set('isLeftMenuOpened', false);
+        // this.$.footerId.classList.remove('hackStyle');
+        // } else {
+        // this.set('isLeftMenuOpened', true);
+        // this.$.footerId.classList.add('hackStyle');
+        // }
+
       }
 
     }
