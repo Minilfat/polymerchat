@@ -27,7 +27,9 @@
       }
 
       :host([is-left-menu-opened]) #footerId {
-        display: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: visibility 0s;
       }
 
       .content-container {
@@ -49,7 +51,10 @@
 
       .footer {
         padding: 0 5px 5px 5px;
+        visibility: visible;
+        transition: visibility 0s linear 0.3s, opacity 2s;
       }
+
 
       .card-flex-box {
         display: flex;
@@ -224,11 +229,8 @@
       logOut() {
         this.storedUser = {}
         this._connection.close();
-        this.dispatchEvent(new CustomEvent("user-is-logged-out", {
-          detail: {
-            loggedOut: false
-          }
-        }));
+        this.dispatchEvent(new CustomEvent("user-is-logged-out"));
+
       }
 
       establishConnection() {
@@ -238,20 +240,13 @@
         this._connection.onerror = this._onError.bind(this);
         this._connection.onclose = this._onClose.bind(this);
         this.set('messagesHistory', []);
+
       }
 
       toggleLefttMenu() {
-
         this.$.drawer.toggle();
-        // if (this.isLeftMenuOpened) {
-        // this.set('isLeftMenuOpened', false);
-        // this.$.footerId.classList.remove('hackStyle');
-        // } else {
-        // this.set('isLeftMenuOpened', true);
-        // this.$.footerId.classList.add('hackStyle');
-        // }
-
       }
+
 
     }
 
