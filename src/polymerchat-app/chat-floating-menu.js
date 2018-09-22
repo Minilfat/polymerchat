@@ -1,11 +1,11 @@
-<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 
-<link rel="import" href="./user-profile-ava.html">
+import './user-profile-ava.js';
 
-
-<dom-module id="chat-floating-menu">
-
-    <template>
+class ChatFloatingMenu extends PolymerElement {
+  
+  static get template() {
+    return html`
         <style>
             .wrapper {
                 display: flex;
@@ -40,7 +40,7 @@
         </style>
         <div class="wrapper">
             <div class="header">
-                <user-profile-ava name={{name}}></user-profile-ava>
+                <user-profile-ava name="{{name}}"></user-profile-ava>
             </div>
             <div class="user-name">
                 Welcome, {{name}}!
@@ -49,24 +49,20 @@
 
             </div>
         </div>
+`;
+  }
 
-    </template>
+  static get is() {
+      return 'chat-floating-menu';
+  }
+  static get properties() {
+      return {
+          name: {
+              type: String,
+              value: 'A'
+          }
+      };
+  }
+}
 
-    <script>
-        class ChatFloatingMenu extends Polymer.Element {
-            static get is() {
-                return 'chat-floating-menu';
-            }
-            static get properties() {
-                return {
-                    name: {
-                        type: String,
-                        value: 'A'
-                    }
-                };
-            }
-        }
-
-        window.customElements.define(ChatFloatingMenu.is, ChatFloatingMenu);
-    </script>
-</dom-module>
+window.customElements.define(ChatFloatingMenu.is, ChatFloatingMenu);
