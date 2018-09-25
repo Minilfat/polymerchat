@@ -194,15 +194,10 @@ class PolymerchatApp extends PolymerElement {
   _showMessage(messageObject) {
     let mes = JSON.parse(messageObject)
     if (mes.type === 'history') {
-      console.log(mes.data);
-      mes.data.forEach(item => {
-        item.isMine = item.author === this.storedUser.name;
-      });
+      mes.data.forEach(item => { item.isMine = item.author === this.storedUser.name });
       this.set('messagesHistory', mes.data);
     } else {
-      console.log(mes.data)
-      console.log(this.storedUser.name)
-      mes.data.isMine = this.storedUser.name === mes.data.author ? true : false;
+      mes.data.isMine = this.storedUser.name === mes.data.author;
       this.push('messagesHistory', mes.data)
     }
 
